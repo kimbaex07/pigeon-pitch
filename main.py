@@ -7,6 +7,7 @@ Pure Python stdlib only.
 
 import os
 import sys
+import unicodedata
 
 LINE = (
     "I'm a pigeon turning park statues into premium ad space and "
@@ -26,6 +27,14 @@ def main() -> int:
         return 1
     if "\n" in line or "\r" in line:
         print("error: pitch must be a single line", file=sys.stderr)
+        return 1
+    if any(unicodedata.category(ch) == "Cc" for ch in line):
+        print("error: pitch contains control characters", file=sys.stderr)
+        return 1
+    try:
+        line.encode("utf-8")
+    except UnicodeEncodeError:
+        print("error: pitch is not UTF-8 encodable", file=sys.stderr)
         return 1
 
     os.umask(0o022)
